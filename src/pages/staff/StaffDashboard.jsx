@@ -89,7 +89,7 @@ export default function StaffDashboard() {
     { label: "Talabalar", value: students.length || 0, icon: Users },
     { label: "O'qituvchilar", value: teachers.length || 0, icon: UserSquare2 },
     { label: "Xonalar", value: rooms.length || 0, icon: DoorOpen },
-    { label: "Foydalanuvchilar", value: users.length || 0, icon: Building2 },
+    { label: "Xodimlar", value: users.length || 0, icon: Building2 },
   ];
 
   return (

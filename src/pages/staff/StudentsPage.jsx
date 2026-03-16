@@ -1,11 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-    Eye,
-    Pencil,
-    Plus,
-    Search,
-    Trash2,
-} from "lucide-react";
+import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { studentService } from "../../api/student.service";
 import { dashboardService } from "../../api/dashboard.service";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +19,7 @@ export default function StudentsPage() {
     const [editingStudent, setEditingStudent] = useState(null);
     const [search, setSearch] = useState("");
     const [error, setError] = useState("");
+    const [activeTab, setActiveTab] = useState("ACTIVE");
 
     const navigate = useNavigate();
 
@@ -59,13 +54,16 @@ export default function StudentsPage() {
 
     const filteredStudents = useMemo(() => {
         return students.filter((student) => {
+            if (activeTab === "INACTIVE" && student.status !== "INACTIVE") return false;
+            if (activeTab === "ACTIVE" && student.status === "INACTIVE") return false;
+
             const fullName = student.fullName?.toLowerCase() || "";
             const email = student.email?.toLowerCase() || "";
             const query = search.toLowerCase();
 
             return fullName.includes(query) || email.includes(query);
         });
-    }, [students, search]);
+    }, [students, search, activeTab]);
 
     const handleView = (student) => {
         navigate(`/staff/students/${student.id}`);
@@ -77,7 +75,13 @@ export default function StudentsPage() {
     };
 
     const handleDelete = async (id) => {
-        const ok = confirm("O'quvchini o'chirmoqchimisiz?");
+        const isArchived = activeTab === "INACTIVE";
+
+        const ok = confirm(
+            isArchived
+                ? "O'quvchini butunlay o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi!"
+                : "O'quvchini arxivga o'tkazmoqchimisiz?"
+        );
         if (!ok) return;
 
         try {
@@ -100,15 +104,38 @@ export default function StudentsPage() {
 
                 <button
                     onClick={() => setDrawerOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-violet-600 px-5 py-3 font-medium text-white transition hover:bg-violet-700"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-violet-500 px-5 py-3 font-medium text-white transition hover:bg-violet-700"
                 >
                     <Plus className="h-4 w-4" />
                     Talaba qo'shish
                 </button>
             </div>
 
-            <div className="mb-4 flex items-center gap-3">
-                <div className="relative w-full max-w-md">
+            <div className="mb-6 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-6">
+                    <button
+                        onClick={() => setActiveTab("ACTIVE")}
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+                            activeTab === "ACTIVE"
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:text-slate-700"
+                        }`}
+                    >
+                        Faol o'quvchilar
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("INACTIVE")}
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+                            activeTab === "INACTIVE"
+                                ? "bg-white text-slate-900 shadow-sm"
+                                : "text-slate-500 hover:text-slate-700"
+                        }`}
+                    >
+                        Arxiv
+                    </button>
+                </div>
+
+                <div className="relative w-72">
                     <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input
                         value={search}
@@ -126,13 +153,12 @@ export default function StudentsPage() {
             )}
 
             <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="grid grid-cols-[70px_1.5fr_1.2fr_1fr_1fr_1fr_130px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600">
+                <div className="grid grid-cols-[50px_1.5fr_1.2fr_1fr_1fr_100px] gap-4 border-b border-slate-200 bg-slate-50 px-5 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">
                     <span>№</span>
                     <span>FIO</span>
                     <span>Email</span>
                     <span>Tug'ilgan sana</span>
                     <span>Yaratilgan sana</span>
-                    <span>Status</span>
                     <span className="text-right">Amallar</span>
                 </div>
 
@@ -148,57 +174,49 @@ export default function StudentsPage() {
                     filteredStudents.map((student, index) => (
                         <div
                             key={student.id}
-                            className="grid grid-cols-[70px_1.5fr_1.2fr_1fr_1fr_1fr_130px] items-center gap-4 border-b border-slate-100 px-5 py-4 text-sm"
+                            className="grid grid-cols-[50px_1.5fr_1.2fr_1fr_1fr_100px] items-center gap-4 border-b border-slate-100 px-5 py-3 text-xs last:border-b-0"
                         >
-                            <span>{index + 1}</span>
+                            <span className="text-slate-400">{index + 1}</span>
 
                             <div className="flex items-center gap-3">
                                 {student.photo ? (
                                     <img
                                         src={student.photo}
                                         alt={student.fullName}
-                                        className="h-10 w-10 rounded-full object-cover"
+                                        className="h-8 w-8 rounded-full object-cover"
                                     />
                                 ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 font-semibold text-slate-700">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-700">
                                         {student.fullName?.[0] || "S"}
                                     </div>
                                 )}
-
                                 <span className="font-medium text-slate-800">
                                     {student.fullName}
                                 </span>
                             </div>
 
-                            <span className="truncate text-slate-600">{student.email}</span>
+                            <span className="truncate text-slate-600">{student.email || "-"}</span>
                             <span className="text-slate-600">{formatDate(student.birth_date)}</span>
                             <span className="text-slate-600">{formatDate(student.created_at)}</span>
-                            <span>
-                                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
-                                    {student.status}
-                                </span>
-                            </span>
 
                             <div className="flex justify-end gap-2">
                                 <button
                                     onClick={() => handleView(student)}
                                     className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
                                 >
-                                    <Eye className="h-4 w-4" />
+                                    <Eye className="h-3.5 w-3.5" />
                                 </button>
-
                                 <button
                                     onClick={() => handleEdit(student)}
                                     className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
                                 >
-                                    <Pencil className="h-4 w-4" />
+                                    <Pencil className="h-3.5 w-3.5" />
                                 </button>
-
                                 <button
                                     onClick={() => handleDelete(student.id)}
                                     className="rounded-xl p-2 text-rose-600 transition hover:bg-rose-50"
                                 >
-                                    <Trash2 className="h-4 w-4" />
+                                    <Trash2 className="h-3.5 w-3.5" />
                                 </button>
                             </div>
                         </div>
@@ -222,8 +240,6 @@ export default function StudentsPage() {
                 initialData={editingStudent}
                 onSuccess={fetchData}
             />
-
-           
         </>
     );
 }
