@@ -5,6 +5,6 @@ export const dashboardService = {
   getStudents: () => api.get("/students"),
   getTeachers: () => api.get("/teachers"),
   getCourses: () => api.get("/courses"),
-  getGroups: () => api.get("/groups/all"),
-  getRooms: () => api.get("/rooms/all"),
+  getGroups: () => api.get("/groups"),
+  getRooms: () => api.get("/rooms"),
 };

@@ -22,10 +22,12 @@ import LessonDetailsPage from "./pages/staff/LessonDetailsPage";
 import ProtectedRoute from "./components/guards/protectedRoute"
 import RoleRoute from "./components/guards/RoleRoute"
 import StaffLayout from "./layout/StaffLayout"
+import { ToastContainer } from "./components/ui/Toast"
 
 function App() {
   return (
-    <BrowserRouter>
+      <BrowserRouter>
+           <ToastContainer />
       <Routes>
         <Route path="/student/login" element={<StudentLoginPage />} />
         <Route path="/teacher/login" element={<TeacherLoginPage />} />

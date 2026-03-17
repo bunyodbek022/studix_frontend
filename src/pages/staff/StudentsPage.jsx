@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Eye, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Archive, Eye, Pencil, Plus, RotateCcw, Search, Trash2 } from "lucide-react";
 import { studentService } from "../../api/student.service";
 import { dashboardService } from "../../api/dashboard.service";
 import { useNavigate } from "react-router-dom";
@@ -39,10 +39,7 @@ export default function StudentsPage() {
             setError("");
             await Promise.all([fetchStudents(), fetchGroups()]);
         } catch (err) {
-            setError(
-                err?.response?.data?.message ||
-                "Ma'lumotlarni yuklashda xatolik yuz berdi"
-            );
+            setError(err?.response?.data?.message || "Ma'lumotlarni yuklashda xatolik yuz berdi");
         } finally {
             setLoading(false);
         }
@@ -74,14 +71,32 @@ export default function StudentsPage() {
         setEditDrawerOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        const isArchived = activeTab === "INACTIVE";
+    const handleArchive = async (id) => {
+        const ok = confirm("Studentni arxivga o'tkazmoqchimisiz?");
+        if (!ok) return;
 
-        const ok = confirm(
-            isArchived
-                ? "O'quvchini butunlay o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi!"
-                : "O'quvchini arxivga o'tkazmoqchimisiz?"
-        );
+        try {
+            await studentService.archiveStudent(id);
+            await fetchStudents();
+        } catch (err) {
+            alert(err?.response?.data?.message || "Arxivga o'tkazishda xatolik");
+        }
+    };
+
+    const handleRestore = async (id) => {
+        const ok = confirm("Studentni faollashtirishmoqchimisiz?");
+        if (!ok) return;
+
+        try {
+            await studentService.restoreStudent(id);
+            await fetchStudents();
+        } catch (err) {
+            alert(err?.response?.data?.message || "Faollashtirishda xatolik");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        const ok = confirm("Studentni butunlay o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi!");
         if (!ok) return;
 
         try {
@@ -97,9 +112,7 @@ export default function StudentsPage() {
             <div className="mb-6 flex items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">O'quvchilar</h1>
-                    <p className="mt-1 text-sm text-slate-500">
-                        Barcha talabalar ro'yxati
-                    </p>
+                    <p className="mt-1 text-sm text-slate-500">Barcha talabalar ro'yxati</p>
                 </div>
 
                 <button
@@ -163,13 +176,9 @@ export default function StudentsPage() {
                 </div>
 
                 {loading ? (
-                    <div className="px-5 py-10 text-center text-slate-500">
-                        Yuklanmoqda...
-                    </div>
+                    <div className="px-5 py-10 text-center text-slate-500">Yuklanmoqda...</div>
                 ) : filteredStudents.length === 0 ? (
-                    <div className="px-5 py-10 text-center text-slate-500">
-                        Student topilmadi
-                    </div>
+                    <div className="px-5 py-10 text-center text-slate-500">Student topilmadi</div>
                 ) : (
                     filteredStudents.map((student, index) => (
                         <div
@@ -190,9 +199,7 @@ export default function StudentsPage() {
                                         {student.fullName?.[0] || "S"}
                                     </div>
                                 )}
-                                <span className="font-medium text-slate-800">
-                                    {student.fullName}
-                                </span>
+                                <span className="font-medium text-slate-800">{student.fullName}</span>
                             </div>
 
                             <span className="truncate text-slate-600">{student.email || "-"}</span>
@@ -200,24 +207,57 @@ export default function StudentsPage() {
                             <span className="text-slate-600">{formatDate(student.created_at)}</span>
 
                             <div className="flex justify-end gap-2">
-                                <button
-                                    onClick={() => handleView(student)}
-                                    className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
-                                >
-                                    <Eye className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                    onClick={() => handleEdit(student)}
-                                    className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
-                                >
-                                    <Pencil className="h-3.5 w-3.5" />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(student.id)}
-                                    className="rounded-xl p-2 text-rose-600 transition hover:bg-rose-50"
-                                >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                </button>
+                                {activeTab === "ACTIVE" && (
+                                    <>
+                                        <button
+                                            onClick={() => handleView(student)}
+                                            className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
+                                            title="Ko'rish"
+                                        >
+                                            <Eye className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleEdit(student)}
+                                            className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
+                                            title="Tahrirlash"
+                                        >
+                                            <Pencil className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleArchive(student.id)}
+                                            className="rounded-xl p-2 text-amber-500 transition hover:bg-amber-50"
+                                            title="Arxivga o'tkazish"
+                                        >
+                                            <Archive className="h-3.5 w-3.5" />
+                                        </button>
+                                    </>
+                                )}
+
+                                {activeTab === "INACTIVE" && (
+                                    <>
+                                        <button
+                                            onClick={() => handleView(student)}
+                                            className="rounded-xl p-2 text-slate-700 transition hover:bg-slate-100"
+                                            title="Ko'rish"
+                                        >
+                                            <Eye className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleRestore(student.id)}
+                                            className="rounded-xl p-2 text-emerald-600 transition hover:bg-emerald-50"
+                                            title="Faollashtirish"
+                                        >
+                                            <RotateCcw className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(student.id)}
+                                            className="rounded-xl p-2 text-rose-600 transition hover:bg-rose-50"
+                                            title="O'chirish"
+                                        >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))

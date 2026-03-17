@@ -58,6 +58,13 @@ export const teacherService = {
     return data;
     },
   
+  async getTeachersByCourse(courseId) {
+    const { data } = await api.get("/teachers", {
+        params: { courseId, limit: 100 }
+    });
+    return data;
+},
+  
     async archiveTeacher(id) {
     const { data } = await api.patch(`/teachers/${id}/archive`);
     return data;
