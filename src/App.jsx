@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import StudentLoginPage from "./pages/auth/studentLoginPage"
 import TeacherLoginPage from "./pages/auth/teacherLoginPage"
 import StaffLoginPage from "./pages/auth/staffLoginPage"
+import LandingPage from "./pages/landing/LandingPage"
 
 import StudentDashboard from "./pages/student/StudentDashboard"
 import TeacherDashboard from "./pages/teacher/TeacherDashboard"
@@ -72,7 +73,7 @@ function App() {
           </Route>
         </Route>
 
-        <Route path="/" element={<Navigate to="/student/login" replace />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<Navigate to="/student/login" replace />} />
       </Routes>
     </BrowserRouter>

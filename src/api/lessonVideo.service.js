@@ -1,19 +1,14 @@
 import { api } from "./axios";
 
 export const lessonVideoService = {
-  async uploadVideo(payload) {
+  createLessonVideo(data) {
     const formData = new FormData();
-    formData.append("lessonId", payload.lessonId);
-    formData.append("title", payload.title);
-    formData.append("file", payload.file);
 
-    const { data } = await api.post("/lesson-videos", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    formData.append("lessonId", String(data.lessonId));
+    formData.append("title", data.title);
+    formData.append("file", data.file);
 
-    return data;
+    return api.post("/lesson-videos", formData); // 🔥 FIX
   },
 
   async deleteVideo(id) {

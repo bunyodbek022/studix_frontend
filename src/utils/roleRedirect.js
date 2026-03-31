@@ -1,20 +1,22 @@
 export function getDashboardByRole(role) {
-  switch (role) {
+  switch (role?.toUpperCase()) {
     case "STUDENT":
-    case "student":
-      return "/student/dashboard"
+      return "/student/dashboard";
 
     case "TEACHER":
-    case "teacher":
-      return "/teacher/dashboard"
+      return "/teacher/dashboard";
 
     case "SUPERADMIN":
+    case "SUPER_ADMIN":
     case "ADMIN":
     case "MANAGEMENT":
     case "ADMINISTRATOR":
-      return "/staff/dashboard"
+    case "ADMINSTRATOR":
+    case "STAFF":
+    case "CREATOR":
+      return "/staff/dashboard";
 
     default:
-      return "/student/login"
+      return "/student/login";
   }
 }

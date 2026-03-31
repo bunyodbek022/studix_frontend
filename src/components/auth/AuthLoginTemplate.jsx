@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/axios";
 import Cookies from "js-cookie";
+import { authStorage } from "../../utils/auth";
 
 const getDashboardByRole = (role) => {
     switch (role) {
         case "STUDENT": return "/student/dashboard";
         case "TEACHER": return "/teacher/dashboard";
-        case "SUPERADMIN":
-        case "ADMIN":
-        case "MANAGEMENT":
+        case "SUPERADMIN": return "/staff/dashboard";
+        case "ADMIN": return "/staff/dashboard";
+        case "MANAGEMENT": return "/staff/dashboard";
         case "ADMINISTRATOR": return "/staff/dashboard";
         default: return "/student/login";
     }
@@ -62,22 +63,23 @@ export default function AuthLoginTemplate({
     };
 
     const handleLogin = async (e) => {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
-        try {
-            const { data } = await api.post(apiUrl, formData);
-            Cookies.set("role", data.role, { expires: 7, sameSite: "Lax" });
-            if (data.user) {
-                Cookies.set("user", JSON.stringify(data.user), { expires: 7, sameSite: "Lax" });
-            }
-            navigate(getDashboardByRole(data.role), { replace: true });
-        } catch (err) {
-            setError(err.response?.data?.message || "Login xatolik. Qayta urinib ko'ring.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+        const { data } = await api.post(apiUrl, formData);
+
+        // 🔥 MUHIM
+        authStorage.setAuth(data);
+
+        navigate(getDashboardByRole(data.role), { replace: true });
+    } catch (err) {
+        setError(err.response?.data?.message || "Login xatolik");
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-white">

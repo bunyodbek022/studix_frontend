@@ -51,7 +51,7 @@ export const studentService = {
     },
 
     async attachGroup(payload) {
-        const { data } = await api.post("/student-group", payload);
+        const { data } = await api.post("/student-groups", payload);
         return data;
     },
 
