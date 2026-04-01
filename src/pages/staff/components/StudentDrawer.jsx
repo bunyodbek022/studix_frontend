@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Eye, EyeOff } from "lucide-react";
 import { studentService } from "../../../api/student.service";
 
 export default function StudentDrawer({
@@ -24,6 +24,7 @@ export default function StudentDrawer({
     const [preview, setPreview] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -196,15 +197,24 @@ export default function StudentDrawer({
                         <label className="mb-2 block text-sm font-medium text-slate-700">
                             Parol {isEdit && <span className="text-slate-400">(ixtiyoriy)</span>}
                         </label>
-                        <input
-                            name="password"
-                            type="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            placeholder={isEdit ? "O'zgartirmasangiz bo'sh qoldiring" : "Kamida 6 ta belgi"}
-                            required={!isEdit}
-                            className="h-11 w-full rounded-xl border border-slate-200 px-4 outline-none focus:border-violet-400"
-                        />
+                        <div className="relative">
+                            <input
+                                name="password"
+                                type={showPassword ? "text" : "password"}
+                                value={form.password}
+                                onChange={handleChange}
+                                placeholder={isEdit ? "O'zgartirmasangiz bo'sh qoldiring" : "Kamida 6 ta belgi"}
+                                required={!isEdit}
+                                className="h-11 w-full rounded-xl border border-slate-200 px-4 pr-10 outline-none focus:border-violet-400"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            >
+                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                            </button>
+                        </div>
                     </div>
 
                     <div>

@@ -4,45 +4,39 @@ import Cookies from "js-cookie";
 import { ToastContainer } from "../components/ui/Toast";
 import {
     Bell,
-    BookOpen,
-    DoorOpen,
-    GraduationCap,
+    Gift,
     LayoutDashboard,
     LogOut,
     Menu,
     Moon,
     Search,
-    Settings,
-    UserSquare2,
-    Users,
-    X,
-    Banknote,
-    CalendarDays,
     ShoppingBag,
+    Coins,
+    BookOpen,
+    X,
 } from "lucide-react";
 
 const sidebarItems = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/staff/dashboard" },
-    { label: "Students", icon: Users, path: "/staff/students" },
-    { label: "Teachers", icon: UserSquare2, path: "/staff/teachers" },
-    { label: "Courses", icon: BookOpen, path: "/staff/courses" },
-    { label: "Groups", icon: GraduationCap, path: "/staff/groups" },
-    { label: "Schedule", icon: CalendarDays, path: "/staff/schedule" },
-    { label: "Rooms", icon: DoorOpen, path: "/staff/rooms" },
-    { label: "Finance", icon: Banknote, path: "/staff/payments" },
-    { label: "Shop", icon: ShoppingBag, path: "/staff/shop" },
-    { label: "Settings", icon: Settings, path: "/staff/settings" },
+    { label: "Dashboard", icon: LayoutDashboard, path: "/student/dashboard" },
+    { label: "Mening Kurslarim", icon: BookOpen, path: "/student/courses" },
+    { label: "Do'kon (Studix Shop)", icon: ShoppingBag, path: "/student/shop" },
 ];
 
-export default function StaffLayout() {
+export default function StudentLayout() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const navigate = useNavigate();
+
+    // Mock student data for coin system preview
+    const studentInfo = {
+        name: "Javohir Tursunov",
+        balance: 1450 // This would normally come from an API/Context
+    };
 
     const handleLogout = () => {
         Cookies.remove("token");
         Cookies.remove("role");
         Cookies.remove("user");
-        navigate("/staff/login", { replace: true });
+        navigate("/student/login", { replace: true });
     };
 
     return (
@@ -63,12 +57,12 @@ export default function StaffLayout() {
             >
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-base font-black text-white shadow-lg">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-base font-black text-white shadow-lg">
                             S
                         </div>
                         <div>
                             <h1 className="text-lg font-bold text-slate-900">Studix</h1>
-                            <p className="text-xs text-slate-500">Admin panel</p>
+                            <p className="text-xs text-slate-500">Student panel</p>
                         </div>
                     </div>
 
@@ -80,7 +74,18 @@ export default function StaffLayout() {
                     </button>
                 </div>
 
-                <nav className="mt-8 space-y-2 overflow-y-auto">
+                <div className="mt-8 mb-4 mx-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-4 text-white shadow-lg shadow-amber-500/20">
+                    <div className="relative z-10 flex flex-col items-center justify-center">
+                        <Coins className="h-8 w-8 mb-2 text-yellow-100 drop-shadow-sm" />
+                        <p className="text-xs font-semibold text-amber-100 tracking-wider uppercase mb-0.5">Mening tangalarim</p>
+                        <h2 className="text-3xl font-black drop-shadow-md">{studentInfo.balance}</h2>
+                    </div>
+                    <div className="absolute -right-4 -top-4 opacity-20">
+                        <Gift className="h-24 w-24" />
+                    </div>
+                </div>
+
+                <nav className="mt-4 space-y-2 overflow-y-auto">
                     {sidebarItems.map((item) => {
                         const Icon = item.icon;
 
@@ -91,7 +96,7 @@ export default function StaffLayout() {
                                 className={({ isActive }) =>
                                     `flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
                                         isActive
-                                            ? "bg-emerald-50 text-emerald-700"
+                                            ? "bg-violet-50 text-violet-700"
                                             : "text-slate-600 hover:bg-slate-100"
                                     }`
                                 }
@@ -125,20 +130,21 @@ export default function StaffLayout() {
                                 >
                                     <Menu className="h-5 w-5" />
                                 </button>
-
-                                <div className="relative w-full max-w-sm">
-                                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        placeholder="Qidirish..."
-                                        className="h-11 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-50"
-                                    />
+                                
+                                <div className="hidden sm:block">
+                                    <h2 className="text-lg font-bold text-slate-800">Salom, {studentInfo.name.split(' ')[0]} 👋</h2>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl mr-2">
+                                    <Coins className="w-4 h-4 text-amber-500" />
+                                    <span className="font-bold text-amber-600">{studentInfo.balance}</span>
+                                </div>
+
                                 <button className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50">
                                     <Bell className="h-4 w-4" />
-                                    <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-emerald-500" />
+                                    <span className="absolute right-3 top-3 h-2 w-2 rounded-full bg-violet-600" />
                                 </button>
 
                                 <button className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-[#25324a] text-white shadow-sm hover:opacity-90">
@@ -146,11 +152,8 @@ export default function StaffLayout() {
                                 </button>
 
                                 <button className="flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 shadow-sm hover:bg-slate-50">
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500 text-xs font-bold text-white">
-                                        S
-                                    </div>
-                                    <div className="text-left">
-                                        <p className="text-sm font-semibold text-slate-800">Super Admin</p>
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-xs font-bold text-white">
+                                        {studentInfo.name.charAt(0)}
                                     </div>
                                 </button>
                             </div>

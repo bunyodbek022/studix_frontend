@@ -5,12 +5,17 @@ import StaffLoginPage from "./pages/auth/staffLoginPage"
 import LandingPage from "./pages/landing/LandingPage"
 
 import StudentDashboard from "./pages/student/StudentDashboard"
+import ShoppingPage from "./pages/student/ShoppingPage"
+import ShopItemDetailsPage from "./pages/student/ShopItemDetailsPage"
 import TeacherDashboard from "./pages/teacher/TeacherDashboard"
 import StaffDashboard from "./pages/staff/StaffDashboard"
 import StudentsPage from "./pages/staff/StudentsPage"
 import TeachersPage from "./pages/staff/TeachersPage"
 import CoursesPage from "./pages/staff/CoursesPage"
+import CourseDetailsPage from "./pages/staff/CourseDetailsPage";
 import GroupsPage from "./pages/staff/GroupsPage"
+import PaymentsPage from "./pages/staff/PaymentsPage"
+import SchedulePage from "./pages/staff/SchedulePage"
 import RoomsPage from "./pages/staff/RoomsPage"
 import SettingsPage from "./pages/staff/SettingsPage"
 import StudentDetailsPage from "./pages/staff/StudentDetailsPage";
@@ -23,6 +28,7 @@ import LessonDetailsPage from "./pages/staff/LessonDetailsPage";
 import ProtectedRoute from "./components/guards/protectedRoute"
 import RoleRoute from "./components/guards/RoleRoute"
 import StaffLayout from "./layout/StaffLayout"
+import StudentLayout from "./layout/StudentLayout"
 import { ToastContainer } from "./components/ui/Toast"
 
 function App() {
@@ -36,7 +42,10 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<RoleRoute allowedRoles={["STUDENT"]} />}>
-            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student" element={<StudentLayout />}>
+              <Route path="dashboard" element={<StudentDashboard />} />
+              <Route path="shop" element={<ShoppingPage />} />
+            </Route>
           </Route>
 
           <Route element={<RoleRoute allowedRoles={["TEACHER"]} />}>
@@ -64,7 +73,12 @@ function App() {
             <Route path="teachers" element={<TeachersPage />} />
             <Route path="teachers/:id" element={<TeacherDetailsPage />} />
             <Route path="courses" element={<CoursesPage />} />
+            <Route path="courses/:id" element={<CourseDetailsPage />} />
             <Route path="groups" element={<GroupsPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
+            <Route path="schedule" element={<SchedulePage />} />
+            <Route path="shop" element={<ShoppingPage />} />
+            <Route path="shop/:id" element={<ShopItemDetailsPage />} />
             <Route path="groups/:id" element={<GroupDetailsPage />} />
             <Route path="lessons/:id" element={<LessonDetailsPage />} />
             <Route path="rooms" element={<RoomsPage />} />
