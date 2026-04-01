@@ -20,6 +20,8 @@ import {
     Lock,
     Pencil,
     Clapperboard,
+    PlayCircle,
+    Video as VideoIcon
 } from "lucide-react";
 import AddLessonVideoDrawer from "./components/AddLessonVideoDrawer";
 import { groupService } from "../../api/group.service";
@@ -373,6 +375,8 @@ function DayPanel({ selectedDay, students, groupId, startTime, durationLesson, o
     const [saved, setSaved] = useState(false); 
     const [isEditing, setIsEditing] = useState(false); 
     const [attendanceLoading, setAttendanceLoading] = useState(false);
+    const [showVideos, setShowVideos] = useState(false);
+    const [currentVideo, setCurrentVideo] = useState(null);
     const selectedDayRef = useRef(null);
 
     const lesson = selectedDay?.lesson || null;
@@ -437,6 +441,7 @@ function DayPanel({ selectedDay, students, groupId, startTime, durationLesson, o
             setCreateError("");
             setSaved(false);
             setIsEditing(false);
+            setShowVideos(false);
         }
     }, [lesson?.id, selectedDay?.date]);
 
@@ -530,7 +535,50 @@ function DayPanel({ selectedDay, students, groupId, startTime, durationLesson, o
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-2">Mavzu</p>
                 {lesson ? (
-                    <p className="text-sm font-medium text-slate-700">{lesson.title}</p>
+                    <div className="space-y-2">
+                        <button 
+                            onClick={() => setShowVideos(!showVideos)}
+                            className="flex w-full items-center justify-between text-left group transition-all"
+                        >
+                            <span className="text-sm font-semibold text-slate-700 group-hover:text-violet-600">
+                                {lesson.title}
+                            </span>
+                            {lesson.lessonVideo?.length > 0 && (
+                                <div className="flex items-center gap-1.5 rounded-lg bg-violet-50 px-2 py-1 text-[10px] font-bold text-violet-600 transition group-hover:bg-violet-100">
+                                    <VideoIcon className="h-3 w-3" />
+                                    {lesson.lessonVideo.length} VIDEO
+                                </div>
+                            )}
+                        </button>
+
+                        {showVideos && lesson.lessonVideo?.length > 0 && (
+                            <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+                                {lesson.lessonVideo.map((vid) => (
+                                    <div 
+                                        key={vid.id} 
+                                        className="flex items-center justify-between rounded-xl bg-white p-2.5 border border-slate-100 shadow-sm transition hover:border-violet-200"
+                                    >
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-500">
+                                                <PlayCircle className="h-5 w-5" />
+                                            </div>
+                                            <p className="truncate text-xs font-medium text-slate-600">{vid.title}</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => setCurrentVideo(`http://localhost:4000/uploads/videos/${vid.file}`)}
+                                            className="ml-2 rounded-lg bg-slate-900 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-slate-800 transition shadow-sm"
+                                        >
+                                            KO'RISH
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {showVideos && (!lesson.lessonVideo || lesson.lessonVideo.length === 0) && (
+                            <p className="mt-2 text-[11px] text-slate-400 italic px-1">Ushbu darsga video yuklanmagan</p>
+                        )}
+                    </div>
                 ) : canCreate ? (
                     <div>
                         <div className="flex gap-2">
@@ -714,6 +762,28 @@ function DayPanel({ selectedDay, students, groupId, startTime, durationLesson, o
                     </div>
                 )}
             </div>
+
+            {/* Video Player Modal */}
+            {currentVideo && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 transition-all animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-black rounded-3xl overflow-hidden shadow-2xl overflow-hidden">
+                        <button 
+                            onClick={() => setCurrentVideo(null)}
+                            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition backdrop-blur-md"
+                        >
+                            <X className="h-5 w-5"/>
+                        </button>
+                        <div className="aspect-video flex items-center justify-center">
+                             <video 
+                                controls 
+                                autoPlay 
+                                src={currentVideo}
+                                className="w-full h-full max-h-[85vh] block"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -728,8 +798,10 @@ export default function GroupDetailsPage() {
     const [scheduleData, setScheduleData] = useState(null);
     const [selectedDay, setSelectedDay] = useState(null);
     const selectedDayRef = useRef(null);
-     const [videoDrawer, setVideoDrawer] = useState(false);
+    const [videoDrawer, setVideoDrawer] = useState(false);
     const [selectedLesson, setSelectedLesson] = useState(null);
+    const [activeVideoLesson, setActiveVideoLesson] = useState(null);
+    const [currentVideo, setCurrentVideo] = useState(null);
 
     const openVideoDrawer = (lesson) => {
         setSelectedLesson(lesson);
@@ -1093,12 +1165,24 @@ export default function GroupDetailsPage() {
                                             <Clapperboard className="h-3.5 w-3.5" />
                                         </button>
 
-                                        {/* VIEW */}
+                                        {/* VIEW / VIDEOS */}
                                         <button
-                                            onClick={() => navigate(`/staff/lessons/${lesson.lessonId || lesson.id}`)}
-                                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+                                            onClick={() => {
+                                                if (lesson.lessonVideo?.length > 0) {
+                                                    setActiveVideoLesson(lesson);
+                                                } else {
+                                                    navigate(`/staff/lessons/${lesson.lessonId || lesson.id}`);
+                                                }
+                                            }}
+                                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 flex items-center gap-1.5"
+                                            title={lesson.videoCount > 0 ? "Videolarni ko'rish" : "Batafsil"}
                                         >
                                             <Eye className="h-3.5 w-3.5" />
+                                            {lesson.videoCount > 0 && (
+                                                <span className="text-[10px] font-bold text-violet-600 bg-violet-50 px-1 rounded">
+                                                    {lesson.videoCount}
+                                                </span>
+                                            )}
                                         </button>
 
                                         {/* DELETE */}
@@ -1135,9 +1219,95 @@ export default function GroupDetailsPage() {
                 lessonId={selectedLesson?.lessonId || selectedLesson?.id}
                 lessonTitle={selectedLesson?.title}
                 onSuccess={() => {
-                    
+                    fetchLessons();
                 }}
             />
+
+            {/* Video List Modal for LESSONS tab */}
+            {activeVideoLesson && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm transition-all duration-300">
+                    <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+                        <div className="flex items-center justify-between border-b p-5 bg-slate-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+                                    <VideoIcon className="h-5 w-5" />
+                                </div>
+                                <div className="max-w-[280px]">
+                                    <h3 className="text-sm font-bold text-slate-800 truncate">{activeVideoLesson.title}</h3>
+                                    <p className="text-[10px] text-slate-400 font-medium tracking-tight">KURS VIDEOLARI ({activeVideoLesson.lessonVideo?.length})</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setActiveVideoLesson(null)} className="rounded-xl bg-white p-2 text-slate-400 hover:bg-slate-100 border transition shadow-sm">
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                        
+                        <div className="p-5 max-h-[50vh] overflow-y-auto space-y-3 bg-white">
+                            {activeVideoLesson.lessonVideo?.map((vid, i) => (
+                                <div key={vid.id} className="flex items-center justify-between rounded-2xl border border-slate-100 p-3 hover:border-violet-200 hover:shadow-sm transition group">
+                                    <div className="flex items-center gap-3 overflow-hidden">
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-500 font-bold text-xs transition">
+                                            {i + 1}
+                                        </div>
+                                        <p className="text-xs font-semibold text-slate-600 truncate">{vid.title}</p>
+                                    </div>
+                                    <button 
+                                        onClick={() => setCurrentVideo(`http://localhost:4000/uploads/videos/${vid.file}`)}
+                                        className="h-8 w-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-900 hover:text-white transition shadow-sm"
+                                    >
+                                        <PlayCircle className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="p-4 border-t bg-slate-50 flex items-center justify-between gap-4">
+                             <button
+                                onClick={() => {
+                                    const id = activeVideoLesson.lessonId || activeVideoLesson.id;
+                                    setActiveVideoLesson(null);
+                                    navigate(`/staff/lessons/${id}`);
+                                }}
+                                className="flex-1 rounded-xl bg-white border border-slate-200 py-3 text-xs font-bold text-slate-600 hover:bg-slate-100 transition shadow-sm active:scale-95"
+                            >
+                                Barcha ma'lumotlar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setSelectedLesson(activeVideoLesson);
+                                    setActiveVideoLesson(null);
+                                    setVideoDrawer(true);
+                                }}
+                                className="flex-1 rounded-xl bg-violet-600 py-3 text-xs font-bold text-white hover:bg-violet-700 transition shadow-md shadow-violet-200 active:scale-95"
+                            >
+                                Video qo'shish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Video Player Modal (for both attendance topic and lessons list) */}
+            {currentVideo && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 transition-all animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-4xl bg-black rounded-3xl overflow-hidden shadow-2xl">
+                        <button 
+                            onClick={() => setCurrentVideo(null)}
+                            className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition backdrop-blur-md"
+                        >
+                            <X className="h-5 w-5"/>
+                        </button>
+                        <div className="aspect-video flex items-center justify-center">
+                             <video 
+                                controls 
+                                autoPlay 
+                                src={currentVideo}
+                                className="w-full h-full max-h-[85vh] block"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

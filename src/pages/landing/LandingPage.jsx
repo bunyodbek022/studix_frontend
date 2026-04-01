@@ -18,6 +18,7 @@ import {
   Zap,
   Globe
 } from 'lucide-react';
+import dashboardScreenshot from '../../assets/dashboard_screenshot.png';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -211,9 +212,12 @@ const LandingPage = () => {
                  <div className="w-3 h-3 rounded-full bg-amber-400"></div>
                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
                </div>
-               <div className="aspect-[16/9] bg-slate-50 relative p-8 flex flex-col items-center justify-center">
-                  <Globe className="w-24 h-24 text-slate-200 mb-4" />
-                  <p className="text-slate-400 font-medium text-lg">Studix Platforma Interfeysi</p>
+               <div className="aspect-[16/9] bg-slate-50 relative overflow-hidden">
+                  <img 
+                    src={dashboardScreenshot} 
+                    alt="Studix Platforma Interfeysi" 
+                    className="w-full h-full object-cover object-top"
+                  />
                </div>
             </div>
           </div>

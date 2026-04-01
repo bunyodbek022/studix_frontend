@@ -163,29 +163,44 @@ export default function LessonDetailsPage() {
            </button>
         </div>
 
-        <div className="space-y-4">
-            {lesson.lessonVideo?.length === 0 ? <p className="text-slate-500 text-center py-4">Video mavjud emas</p> : null}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {lesson.lessonVideo?.length === 0 ? (
+                <div className="col-span-full py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <Video className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-400 font-medium">Hali videolar yuklanmagan</p>
+                </div>
+            ) : null}
             {lesson.lessonVideo?.map((video, i) => (
-                <div key={video.id} className="flex items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-                            <Video className="h-6 w-6" />
+                <div key={video.id} className="group relative bg-white border border-slate-100 p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-violet-200 transition-all duration-300">
+                    <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600 font-bold">
+                                {i + 1}
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-slate-800 line-clamp-1">{video.title}</h3>
+                                <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+                                    <Clock className="w-3 h-3" />
+                                    {formatDate(video.created_at)}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <div className="font-medium text-lg">{video.title}</div>
-                            <div className="text-slate-500 text-sm">O'rnatildi: {formatDate(video.created_at)}</div>
+                        <div className="flex items-center gap-2">
+                             <button 
+                                onClick={() => setCurrentVideoUrl(`http://localhost:4000/uploads/videos/${video.file}`)}
+                                className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition shadow-sm"
+                                title="Ijro etish"
+                            >
+                                <PlayCircle className="h-5 w-5" />
+                            </button>
+                            <button 
+                                onClick={() => removeVideo(video.id)} 
+                                className="h-9 w-9 flex items-center justify-center rounded-xl border border-slate-100 text-rose-500 hover:bg-rose-50 hover:border-rose-100 transition"
+                                title="O'chirish"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </button>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button 
-                            onClick={() => setCurrentVideoUrl(`http://localhost:4000/uploads/videos/${video.file}`)}
-                            className="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                        >
-                            <PlayCircle className="h-4 w-4" /> Ijro
-                        </button>
-                        <button onClick={() => removeVideo(video.id)} className="p-2 border rounded-xl hover:bg-rose-50 text-rose-600">
-                            <Trash2 className="h-4 w-4" />
-                        </button>
                     </div>
                 </div>
             ))}
@@ -193,20 +208,22 @@ export default function LessonDetailsPage() {
       </div>
 
       {currentVideoUrl && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
-            <div className="relative w-full max-w-4xl bg-black rounded-2xl overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 transition-all duration-300">
+            <div className="relative w-full max-w-4xl bg-black rounded-3xl overflow-hidden shadow-2xl">
                 <button 
                     onClick={() => setCurrentVideoUrl(null)}
-                    className="absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2 text-white hover:bg-black/80"
+                    className="absolute top-4 right-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition backdrop-blur-md"
                 >
                     <X className="h-6 w-6"/>
                 </button>
-                <video 
-                    controls 
-                    autoPlay 
-                    src={currentVideoUrl}
-                    className="w-full max-h-[85vh]"
-                />
+                <div className="aspect-video flex items-center justify-center">
+                    <video 
+                        controls 
+                        autoPlay 
+                        src={currentVideoUrl}
+                        className="w-full h-full max-h-[85vh] block"
+                    />
+                </div>
             </div>
         </div>
       )}
