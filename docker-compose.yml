@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studix_frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - studix_network
+
+networks:
+  studix_network:
+    external: true
